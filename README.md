@@ -4,7 +4,7 @@ PictureGrid is a Python project that arranges a collection of images into a grid
 
 ## Features
 
-- **Image Sorting**: Arrange images in the grid based on their average color or other specified criteria.
+- **Image Sorting**: Arrange images in the grid based on their average color.
 - **Configurable Grid**: Easily configure the dimensions of the grid to suit your visual preferences.
 - **Debugging Visualization**: Generate a debug image with colored squares to visualize the sorting process.
 
@@ -45,7 +45,6 @@ Adjust the settings in the settings.py file to customize the behavior of the Pic
 ## Dependencies
 
     numpy
-    opencv-python
     matplotlib
     Pillow
 

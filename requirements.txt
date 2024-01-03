@@ -8,7 +8,6 @@ lazy_loader==0.3
 matplotlib==3.8.2
 networkx==3.2.1
 numpy==1.26.2
-opencv-python==4.8.1.78
 packaging==23.2
 Pillow==10.1.0
 pyparsing==3.1.1

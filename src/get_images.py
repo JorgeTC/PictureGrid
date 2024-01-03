@@ -3,7 +3,6 @@ import math
 from dataclasses import dataclass
 from pathlib import Path
 
-import cv2
 import matplotlib.pyplot as plt
 import numpy as np
 from PIL import Image
@@ -103,22 +102,6 @@ def get_average_colour(image_array: np.ndarray) -> RGB:
 
     return RGB(*(rgb_colors[:3]))
 
-
-def get_representative_colour(image_array: np.ndarray, *,
-                              criteria=(cv2.TERM_CRITERIA_EPS +
-                                        cv2.TERM_CRITERIA_MAX_ITER, 200, .1),
-                              flags=cv2.KMEANS_RANDOM_CENTERS):
-
-    pixels = np.float32(image_array.reshape(-1, 3))
-
-    n_colors = 5
-
-    _, labels, palette = cv2.kmeans(pixels, n_colors,
-                                    None, criteria, 10, flags)
-    _, counts = np.unique(labels, return_counts=True)
-
-    dominant = palette[np.argmax(counts)]
-    return RGB(*(dominant[0:3]))
 
 
 def debug_colors(images_list: list[ImageRGB], grid: IterGrid):
