@@ -3,11 +3,11 @@ import math
 from dataclasses import dataclass
 from pathlib import Path
 
-import matplotlib.pyplot as plt
 import numpy as np
 from PIL import Image
 
 from iter import IterGrid
+from make_image import make_image_from_list
 from settings import DebugImage
 
 
@@ -103,27 +103,13 @@ def get_average_colour(image_array: np.ndarray) -> RGB:
     return RGB(*(rgb_colors[:3]))
 
 
-
 def debug_colors(images_list: list[ImageRGB], grid: IterGrid):
 
-    total_width = grid.columns
-    total_height = grid.rows
-    fig, axes = plt.subplots(grid.rows, grid.columns)
-    fig.set_size_inches(total_width, total_height)
-    fig.set_facecolor(DebugImage.BACKGROUND_COLOR)
+    images_color = (image.color for image in images_list)
+    array_color = (np.array([[image_color.as_linear()]])
+                   for image_color in images_color)
+    color_square = [np.ones((DebugImage.PPP, DebugImage.PPP, 3), dtype=float) * color
+                    for color in array_color]
 
-    colors = (image.color for image in images_list)
-    for position, image_color in zip(grid.iterate_diagonals(), colors):
-        color = np.array([[image_color.as_linear()]])
-        image = np.ones((1, 1, 3), dtype=float) * color
-
-        # Get to the next cell
-        cell: plt.Axes = axes[position.row, position.column]
-        cell.axis('off')
-        cell.imshow(image)
-
-    plt.subplots_adjust(left=None, bottom=None, right=None, top=None,
-                        wspace=0, hspace=0)
-    # Save the plot as a jpg file
-    plt.savefig(DebugImage.PATH, pad_inches=0,
-                dpi=DebugImage.PPP, bbox_inches='tight')
+    make_image_from_list(color_square, grid,
+                         DebugImage.PPP, DebugImage.PATH, DebugImage.BACKGROUND_COLOR)
