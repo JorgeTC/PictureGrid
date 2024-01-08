@@ -18,13 +18,13 @@ def add_images_to_axes(axes: ndarray, arrays_list: list[ndarray], grid: IterGrid
 
 
 def get_fig_size(arrays_list: list[ndarray], grid: IterGrid, ppp: int) -> tuple[int, int]:
-    rows_height = [0] * grid.rows
-    columns_width = [0] * grid.columns
+    rows_height = [1e10] * grid.rows
+    columns_width = [1e10] * grid.columns
 
     for position, array in zip(grid.iterate_diagonals(), arrays_list):
-        columns_width[position.column] = max(columns_width[position.column],
+        columns_width[position.column] = min(columns_width[position.column],
                                              array.shape[1])
-        rows_height[position.row] = max(rows_height[position.row],
+        rows_height[position.row] = min(rows_height[position.row],
                                         array.shape[0])
 
     total_width = sum(columns_width)
