@@ -5,10 +5,7 @@ class Grid:
     ROWS = 10
     COLUMNS = 10
 
-    @classmethod
-    @property
-    def DIAGONALS(cls):
-        return cls.ROWS + cls.COLUMNS - 1
+    DIAGONALS = ROWS + COLUMNS - 1
 
 
 class SrcImages:
@@ -26,13 +23,8 @@ class OutFile:
     # Name of the output file
     NAME: str = None
 
-    @classmethod
-    @property
-    def PATH(cls) -> Path:
-        '''
-        Returns full path to the output file
-        '''
-        return cls.DIR / cls.NAME
+    # Full path to the output file
+    PATH = DIR / NAME
 
 
 RGB_LETTERBOX = (20/255, 24/255, 28/255)
