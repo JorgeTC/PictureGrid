@@ -25,7 +25,7 @@ def main():
 
     # Create a image with the images in grid disposition
     make_image_from_list(array_list, grid_dim,
-                         OutImage.PPP, OutImage.PATH, OutImage.BACKGROUND_COLOR)
+                         OutImage.PPP, OutImage.PATH(), OutImage.BACKGROUND_COLOR)
 
 
 if __name__ == '__main__':

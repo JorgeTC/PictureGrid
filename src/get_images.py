@@ -112,4 +112,4 @@ def debug_colors(images_list: list[ImageRGB], grid: IterGrid):
                     for color in array_color]
 
     make_image_from_list(color_square, grid,
-                         DebugImage.PPP, DebugImage.PATH, DebugImage.BACKGROUND_COLOR)
+                         DebugImage.PPP, DebugImage.PATH(), DebugImage.BACKGROUND_COLOR)

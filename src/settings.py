@@ -31,10 +31,9 @@ class OutFile:
     # Colour for the space between images
     BACKGROUND_COLOR: tuple[int, int, int]
 
-    @property
-    def PATH(self):
+    def PATH(cls):
         '''Full path to the output file'''
-        return self.DIR / self.NAME
+        return cls.DIR / cls.NAME
 
 
 RGB_LETTERBOX = (20/255, 24/255, 28/255)
