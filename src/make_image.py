@@ -6,51 +6,81 @@ from numpy import ndarray
 
 from iter import IterGrid
 
+# Constants for margins and spacing
+MARGIN_RATIO = 0.05  # Fraction of the figure width/height used as margin
+SPACING_RATIO = 0.1  # Fraction of space between images in the grid
 
-def add_images_to_axes(axes: ndarray, arrays_list: list[ndarray], grid: IterGrid):
-    for position, array in zip(grid.iterate_diagonals(), arrays_list):
-        # Get to the next cell
+
+def add_images_to_axes(axes: ndarray, images: list[ndarray], grid: IterGrid):
+    for position, image in zip(grid.iterate_diagonals(), images):
+        # Get the corresponding cell in the grid
         cell: plt.Axes = axes[position.row, position.column]
 
-        # Turn off the axis
+        # Hide axes and display the image
         cell.axis('off')
-        # Set the image to the position
-        cell.imshow(array, cmap='gray', vmin=0, vmax=255)
+        cell.imshow(image, cmap='gray', vmin=0, vmax=255)
+        cell.set_aspect('auto')
 
 
-def get_fig_size(arrays_list: list[ndarray], grid: IterGrid, ppp: int) -> tuple[int, int]:
-    rows_height = [inf] * grid.rows
-    columns_width = [inf] * grid.columns
+def calculate_grid_size(images: list[ndarray], grid: IterGrid, pixels_per_inch: int) -> tuple[int, int]:
+    row_heights = [inf] * grid.rows
+    column_widths = [inf] * grid.columns
 
-    for position, array in zip(grid.iterate_diagonals(), arrays_list):
-        columns_width[position.column] = min(columns_width[position.column],
-                                             array.shape[1])
-        rows_height[position.row] = min(rows_height[position.row],
-                                        array.shape[0])
+    for position, image in zip(grid.iterate_diagonals(), images):
+        column_widths[position.column] = min(column_widths[position.column], image.shape[1])
+        row_heights[position.row] = min(row_heights[position.row], image.shape[0])
 
-    total_width = sum(columns_width)
-    total_height = sum(rows_height)
+    total_width_pixels = sum(column_widths)
+    total_height_pixels = sum(row_heights)
 
-    return int(total_width / ppp), int(total_height / ppp)
+    total_width_inches = total_width_pixels / pixels_per_inch
+    total_height_inches = total_height_pixels / pixels_per_inch
+
+    return total_width_inches, total_height_inches
 
 
-def make_image_from_list(array_list: list[ndarray], grid: IterGrid,
-                         ppp: int, output_file: Path, background_color: tuple[float, float, float]):
+def calculate_spacing_ratios(images: list[ndarray]) -> tuple[float, float]:
+    poster_aspect_ratio = images[0].shape[0] / images[0].shape[1]
+    horizontal_spacing = SPACING_RATIO
+    vertical_spacing = horizontal_spacing / poster_aspect_ratio
+    return horizontal_spacing, vertical_spacing
 
-    # Calculate the total width and height of the images in the grid
-    total_width, total_height = get_fig_size(array_list, grid, ppp)
-    # Create plt plot:
+
+def make_image_from_list(images: list[ndarray], grid: IterGrid,
+                         pixels_per_inch: int, output_path: Path,
+                         background_color: tuple[float, float, float]):
+    # Calculate the total grid size in inches
+    grid_width, grid_height = calculate_grid_size(images, grid, pixels_per_inch)
+
+    # Calculate spacing between subplots
+    horizontal_spacing, vertical_spacing = calculate_spacing_ratios(images)
+
+    # Create the figure and axes
     fig, axes = plt.subplots(grid.rows, grid.columns)
-
-    # Set the size of the figure to match the total width and height
-    fig.set_size_inches(total_width, total_height)
     fig.set_facecolor(background_color)
 
-    # Populate the grid
-    add_images_to_axes(axes, array_list, grid)
+    # Populate the grid with images
+    add_images_to_axes(axes, images, grid)
 
-    plt.subplots_adjust(left=None, bottom=None, right=None, top=None,
-                        wspace=0, hspace=0)
-    # Save the plot as a jpg file
-    plt.savefig(output_file, pad_inches=0,
-                dpi=ppp, bbox_inches='tight')
+    # Adjust the figure size to include margins
+    margin_width = MARGIN_RATIO * grid_width
+    margin_height = MARGIN_RATIO * grid_height
+    total_width = grid_width + 2 * margin_width
+    total_height = grid_height + 2 * margin_height
+    fig.set_size_inches(total_width, total_height)
+
+    # Configure subplot spacing
+    plt.subplots_adjust(
+        left=MARGIN_RATIO,
+        right=1 - MARGIN_RATIO,
+        bottom=MARGIN_RATIO,
+        top=1 - MARGIN_RATIO,
+        wspace=horizontal_spacing,
+        hspace=vertical_spacing
+    )
+
+    # Save the figure with high resolution
+    output_format = output_path.suffix.strip('.')
+    plt.savefig(output_path, format=output_format, dpi=pixels_per_inch * 2,
+                bbox_inches='tight', pad_inches=MARGIN_RATIO / 2)
+    plt.close(fig)  # Close the figure to free memory
