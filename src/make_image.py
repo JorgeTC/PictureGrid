@@ -1,3 +1,4 @@
+from math import inf
 from pathlib import Path
 
 import matplotlib.pyplot as plt
@@ -18,8 +19,8 @@ def add_images_to_axes(axes: ndarray, arrays_list: list[ndarray], grid: IterGrid
 
 
 def get_fig_size(arrays_list: list[ndarray], grid: IterGrid, ppp: int) -> tuple[int, int]:
-    rows_height = [1e10] * grid.rows
-    columns_width = [1e10] * grid.columns
+    rows_height = [inf] * grid.rows
+    columns_width = [inf] * grid.columns
 
     for position, array in zip(grid.iterate_diagonals(), arrays_list):
         columns_width[position.column] = min(columns_width[position.column],
