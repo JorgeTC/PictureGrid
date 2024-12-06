@@ -2,6 +2,7 @@ import colorsys
 import math
 from dataclasses import dataclass
 from pathlib import Path
+import statistics
 
 import numpy as np
 from PIL import Image
@@ -48,8 +49,47 @@ def get_all_images(folder: Path, acceptable_extensions: set[str]) -> list[Path]:
     return list(images)
 
 
+def crop_to_target_ratio(image: ImageRGB, target_ratio: float):
+    height, width = image.array.shape[:2]
+    current_ratio = width / height
+
+    # Si ya tiene la proporción, no recortar
+    if np.isclose(current_ratio, target_ratio, atol=1e-5):
+        return
+
+    if current_ratio > target_ratio:
+        # Imagen más ancha de lo necesario: recortar horizontalmente
+        new_width = int(target_ratio * height)
+        left = (width - new_width) // 2
+        right = left + new_width
+        image.array = image.array[:, left:right]
+    else:
+        # Imagen más alta de lo necesario: recortar verticalmente
+        new_height = int(width / target_ratio)
+        top = (height - new_height) // 2
+        bottom = top + new_height
+        image.array = image.array[top:bottom, :]
+
+
+def get_image_aspect_ratio(image: ImageRGB) -> float:
+    height, width = image.array.shape[:2]
+    return width / height
+
+
+def get_avg_aspect_ratio(images: list[ImageRGB]):
+    aspect_ratios = (get_image_aspect_ratio(image) for image in images)
+    return statistics.median(aspect_ratios)
+
+
+def normalize_images(images: list[ImageRGB]):
+    avg_aspect_ratio = get_avg_aspect_ratio(images)
+    for image in images:
+        crop_to_target_ratio(image, avg_aspect_ratio)
+
+
 def sort_images(images: list[Path], grid: IterGrid) -> list[ImageRGB]:
     average_colors = [ImageRGB(image) for image in images]
+    normalize_images(average_colors)
     average_colors.sort(reverse=True, key=lambda im: im.color.norm)
 
     # Create a list to store every diagonal
