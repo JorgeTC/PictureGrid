@@ -1,15 +1,15 @@
 import colorsys
 import math
+import statistics
 from dataclasses import dataclass
 from pathlib import Path
-import statistics
 
 import numpy as np
 from PIL import Image
 
 from iter import IterGrid
 from make_image import make_image_from_list
-from settings import DebugImage
+from settings import REPRESENTATIVE_COLOR, DebugImage, RepresentativeColor
 
 
 @dataclass
@@ -39,7 +39,7 @@ class ImageRGB:
         self.path = image
         with Image.open(image) as open_image:
             self.array = np.asarray(open_image)
-        self.color: RGB = get_average_colour(self.array)
+        self.color: RGB = get_representative_colour(self.array)
 
 
 def get_all_images(folder: Path, acceptable_extensions: set[str]) -> list[Path]:
@@ -129,14 +129,18 @@ def split_alpha_channel(image_array: np.ndarray) -> tuple[np.ndarray, np.ndarray
     return rgb_values, alpha_channel
 
 
-def get_average_colour(image_array: np.ndarray) -> RGB:
+def get_representative_colour(image_array: np.ndarray) -> RGB:
 
     rgb_values, alpha_channel = split_alpha_channel(image_array)
 
-    avg_color: np.ndarray = np.average(rgb_values, axis=(0, 1),
-                                       weights=alpha_channel)
+    if REPRESENTATIVE_COLOR == RepresentativeColor.AVERAGE:
+        avg_color: np.ndarray = np.average(rgb_values, axis=(0, 1),
+                                           weights=alpha_channel)
+    elif REPRESENTATIVE_COLOR == RepresentativeColor.MEDIAN:
+        avg_color: np.ndarray = np.median(rgb_values, axis=(0, 1))
+
     if avg_color.shape == (3,):
-        rgb_colors = [*avg_color]
+        rgb_colors: list[float] = [*avg_color]
     else:
         raise ValueError('Average colour got an unexpected dimension')
 

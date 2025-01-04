@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from enum import Enum, auto
 from pathlib import Path
 
 
@@ -49,3 +50,11 @@ DebugImage = OutFile(BACKGROUND_COLOR=RGB_LETTERBOX,
                      DIR=Path("./out").resolve(),
                      NAME='grid_debug.jpg',
                      PPP=300)
+
+
+class RepresentativeColor(Enum):
+    AVERAGE = auto()
+    MEDIAN = auto()
+
+
+REPRESENTATIVE_COLOR = RepresentativeColor.AVERAGE
