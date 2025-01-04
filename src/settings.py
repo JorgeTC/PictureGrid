@@ -9,6 +9,12 @@ class Grid:
 
     DIAGONALS = ROWS + COLUMNS - 1
 
+    # Fraction of the figure width/height used as exterior margin
+    MARGIN_RATIO = 0.05
+    # Fraction of space between images in the grid
+    SPACING_RATIO = 0.1
+
+
 
 class SrcImages:
     # Folder to store the input images
